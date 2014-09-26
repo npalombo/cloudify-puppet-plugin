@@ -13,6 +13,8 @@ from puppet_plugin.manager import (PuppetParamsError,
                                    PuppetStandaloneRunner,
                                    PUPPET_TAG_RE)
 
+from puppet_plugin.classifier import PuppetClassifier
+
 EXPECTED_OP_PREFIXES = (
     'cloudify.interfaces.lifecycle',
     'cloudify.interfaces.relationship_lifecycle')
@@ -77,7 +79,6 @@ def _prepare_tags(ctx, props, op):
             return None
     return tags
 
-
 @_operation
 def operation(ctx, **kwargs):
 
@@ -94,6 +95,16 @@ def operation(ctx, **kwargs):
                             format(op))
             return
         mgr.run(tags=(tags or []))
+
+        if op == 'configure':
+            # mgr.run() is called once before this on the 'configure' operation
+            # that allows for the puppet.conf to be set and ssl certs to be retrieved
+            # classify
+            classifier = PuppetClassifier(ctx)
+            classifier.classify()
+            # mgr.run() will be called again on the 'start' operation
+            # then node will be configured according to the classification just done
+
         return
 
     if isinstance(mgr, PuppetStandaloneRunner):

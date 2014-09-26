@@ -24,11 +24,12 @@ setuptools.setup(
     version='1.1a4',
     author='ilya',
     author_email='ilya.sher@coding-knight.com',
-    packages=['puppet_plugin'],
+    packages=['puppet_plugin', 'puppet_classifier'],
     license='LICENSE',
     description='Cloudify Chef plugin',
     install_requires=[
-        'cloudify-plugins-common==3.1a4',
+        'cloudify-plugins-common==3.0',
+        'requests>=2.3.0'
     ],
     package_data={
         'puppet_plugin': [

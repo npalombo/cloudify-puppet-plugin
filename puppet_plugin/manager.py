@@ -454,6 +454,10 @@ class PuppetAgentRunner(PuppetRunner):
             node_name
         )
 
+        self.ctx['config_node_name'] = node_name
+        self.ctx['config_certname'] = certname
+        self.ctx.update()
+
         conf = PUPPET_CONF_TPL.format(
             environment=self.environment,
             modulepath=self.get_modules_path(),
