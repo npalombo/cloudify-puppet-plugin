@@ -17,7 +17,7 @@ class PuppetClassifier(object):
             scheme = 'https'
             port = '1262'
             # the location of these files is platform dependent.
-            #TODO: set defaults based on platform
+            #TODO: set defaults based on platform (Linux, windows)
             config_certname = ctx['config_certname']
             default_cert = '/var/lib/puppet/ssl/certs/%s.pem' % config_certname
             default_key = '/var/lib/puppet/ssl/private_keys/%s.pem' % config_certname
@@ -45,8 +45,7 @@ class PuppetClassifier(object):
         if self.group is not None:
             config_node_name = self.ctx['config_node_name']
             group_name = 'cloudify_%s' % config_node_name
-            match = "^%s.*$" % config_node_name
-            rule = ["and",["~","name",match]]
+            rule = ["and",["=","name",config_node_name]]
             variables = self.group.get('variables')
             new_group =  Group(
                     group_name,
@@ -56,4 +55,9 @@ class PuppetClassifier(object):
                     variables=variables,
                     environment=self.environment
                 )
-            self.group_client.create(new_group)
+            result_group = self.group_client.create(new_group)
+            self.group_id = result_group.get('id')
+
+    def declassify(self):
+        if self.group_id is not None:
+            self.group_client.delete(self.group_id)
